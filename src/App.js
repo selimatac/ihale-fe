@@ -8,6 +8,7 @@ import { store } from "./store/index";
 import { Provider } from "react-redux";
 import { ModalProvider } from "react-modal-hook";
 import HesaplaPage from "./pages/HesaplaPage";
+import ErrorElement from "./components/ErrorElement";
 
 const router = createBrowserRouter([
   {
@@ -18,10 +19,11 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/hesapla",
+        path: "/ihale-degerlendir",
         element: <HesaplaPage />,
       },
     ],
+    errorElement: <ErrorElement />,
   },
 ]);
 

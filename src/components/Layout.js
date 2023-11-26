@@ -3,14 +3,13 @@ import {
   Flex,
   HStack,
   IconButton,
-  Button,
   useDisclosure,
   useColorModeValue,
   Stack,
   Container,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, SettingsIcon } from "@chakra-ui/icons";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 const NavLink = (props) => {
   const location = useLocation();
@@ -24,11 +23,7 @@ const NavLink = (props) => {
         textDecoration: "none",
         bg: useColorModeValue("gray.200", "gray.700"),
       }}
-      bg={
-        location.pathname === to
-          ? "gray.200"
-          : ""
-      }
+      bg={location.pathname === to ? "gray.200" : ""}
     >
       <Link to={to}>{children}</Link>
     </Box>
@@ -37,7 +32,6 @@ const NavLink = (props) => {
 
 export default function Layout(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigate = useNavigate();
 
   return (
     <>
@@ -51,14 +45,14 @@ export default function Layout(props) {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <Box fontWeight={"semibold"}>Firma Takip Sistemi</Box>
+            <Box fontWeight={"semibold"}>İhale Değerlendirme Sistemi</Box>
             <HStack
               as={"nav"}
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
               <NavLink to="/">Ana sayfa</NavLink>
-              <NavLink to="/hesapla">İhale Hesapla</NavLink>
+              <NavLink to="/ihale-degerlendir">İhale Değerlendir</NavLink>
             </HStack>
           </HStack>
         </Flex>
@@ -66,7 +60,7 @@ export default function Layout(props) {
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               <NavLink to="/">Ana sayfa</NavLink>
-              <NavLink to="/hesapla">İhale Hesapla</NavLink>
+              <NavLink to="/ihale-degerlendir">İhale Değerlendir</NavLink>
             </Stack>
           </Box>
         ) : null}

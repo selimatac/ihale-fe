@@ -21,14 +21,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDataRequest } from "../store/firmaReducer";
 import { NumericFormat } from "react-number-format";
 import { DURUMLAR, getWithCurrencyFormat } from "../utils";
+import * as XLSX from "xlsx/xlsx.mjs";
 
-// KURUŞ GELİŞTİRMESİNİ YAP.
 const HesaplaPage = () => {
   const dispatch = useDispatch();
   const { firmaData } = useSelector((state) => state.firma);
   const [sonucTablosu, setSonucTablosu] = useState({});
   const [maliyet, setMaliyet] = useState({});
   const [hesaplamaTamamlandi, setHesaplamaTamamlandi] = useState(null);
+
+  const exceleAktar = () => {
+    const sonuc = sonucTablosu.sonuc.map((x, i) => {
+      return {
+        Sıralama: i + 1,
+        "Firma Adı": x.firmaAdi,
+        Teklifi: getWithCurrencyFormat(x.teklifi),
+        "Teminat Tutarı": getWithCurrencyFormat(x.teminatTutari),
+        Durumu: DURUMLAR[x.durumu],
+      };
+    });
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(sonuc);
+
+    XLSX.utils.book_append_sheet(wb, ws, "İhale Sonucu");
+    XLSX.writeFile(wb, `İhale-Sonucu-${Date.now()}.xlsx`);
+  };
 
   const ihaleyiHesapla = (e) => {
     e.preventDefault();
@@ -147,7 +164,12 @@ const HesaplaPage = () => {
             <Table variant="simple" size={"lg"}>
               <Thead>
                 <Tr>
-                  <Th colSpan={5}>İHALE DEĞERLENDİRME TABLOSU</Th>
+                  <Th colSpan={4}>İHALE DEĞERLENDİRME TABLOSU</Th>
+                  <Th colSpan={1}>
+                    <Button onClick={exceleAktar} type="button">
+                      Excell'e Aktar
+                    </Button>
+                  </Th>
                 </Tr>
               </Thead>
               <Thead>
