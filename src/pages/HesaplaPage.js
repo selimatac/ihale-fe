@@ -8,15 +8,17 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Spinner,
   Table,
   TableContainer,
   Tbody,
   Td,
+  Tfoot,
   Th,
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataRequest } from "../store/firmaReducer";
 import { NumericFormat } from "react-number-format";
@@ -25,26 +27,15 @@ import * as XLSX from "xlsx/xlsx.mjs";
 
 const HesaplaPage = () => {
   const dispatch = useDispatch();
-  const { firmaData } = useSelector((state) => state.firma);
+  const tableRef = useRef();
+  const { firmaData, firmaDataLoading } = useSelector((state) => state.firma);
   const [sonucTablosu, setSonucTablosu] = useState({});
   const [maliyet, setMaliyet] = useState({});
   const [hesaplamaTamamlandi, setHesaplamaTamamlandi] = useState(null);
 
   const exceleAktar = () => {
-    const sonuc = sonucTablosu.sonuc.map((x, i) => {
-      return {
-        Sıralama: i + 1,
-        "Firma Adı": x.firmaAdi,
-        Teklifi: getWithCurrencyFormat(x.teklifi),
-        "Teminat Tutarı": getWithCurrencyFormat(x.teminatTutari),
-        Durumu: DURUMLAR[x.durumu],
-      };
-    });
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(sonuc);
-
-    XLSX.utils.book_append_sheet(wb, ws, "İhale Sonucu");
-    XLSX.writeFile(wb, `İhale-Sonucu-${Date.now()}.xlsx`);
+    const wb = XLSX.utils.table_to_book(tableRef.current);
+    XLSX.writeFileXLSX(wb, `İhale-Sonucu-${Date.now()}.xlsx`);
   };
 
   const ihaleyiHesapla = (e) => {
@@ -118,6 +109,13 @@ const HesaplaPage = () => {
     dispatch(getDataRequest());
   }, []);
 
+  if (firmaData.length === 0 && firmaDataLoading) {
+    return (
+      <Center>
+        <Spinner size={"lg"} />
+      </Center>
+    );
+  }
   return (
     <>
       <Container mb={4}>
@@ -159,19 +157,21 @@ const HesaplaPage = () => {
         </Center>
       )}
       {hesaplamaTamamlandi ? (
-        <Card>
+        <Card mb={8}>
           <TableContainer>
             <Table variant="simple" size={"lg"}>
               <Thead>
                 <Tr>
                   <Th colSpan={4}>İHALE DEĞERLENDİRME TABLOSU</Th>
-                  <Th colSpan={1}>
+                  <Th colSpan={1} textAlign={"right"}>
                     <Button onClick={exceleAktar} type="button">
                       Excell'e Aktar
                     </Button>
                   </Th>
                 </Tr>
               </Thead>
+            </Table>
+            <Table variant="simple" size={"lg"} ref={tableRef}>
               <Thead>
                 <Tr>
                   <Th colSpan={2}>İHALE DURUMU</Th>
@@ -213,6 +213,22 @@ const HesaplaPage = () => {
                   </Tr>
                 ))}
               </Tbody>
+              <Tfoot bg={"gray.100"}>
+                <Tr>
+                  <Td></Td>
+                  <Td></Td>
+                  <Td textAlign={"center"}>
+                    <Heading size={"md"} fontWeight={"md"}>
+                      Yaklaşık Maliyet Tutarı:
+                    </Heading>
+                  </Td>
+                  <Td>
+                    <Heading size={"md"} fontWeight={"md"}>
+                      {` ${maliyet.formattedValue} `}
+                    </Heading>
+                  </Td>
+                </Tr>
+              </Tfoot>
             </Table>
           </TableContainer>
         </Card>
